@@ -843,7 +843,7 @@ def chat_input_component(task_counter: int) -> Optional[str]:
         "Enter your coding requirements:",
         placeholder="""Example: I want to build a web application that can analyze user sentiment from social media posts. The application should have:
 
-1. A user-friendly interface where users can input text or upload files
+1. A user-friendly interface where users can input text
 2. A machine learning backend that performs sentiment analysis
 3. Visualization of results with charts and statistics
 4. User authentication and data storage
@@ -904,36 +904,17 @@ def input_method_selector(task_counter: int) -> tuple[Optional[str], Optional[st
         unsafe_allow_html=True,
     )
 
-    # Input options
     st.markdown(
         """
     <p style="color: var(--text-secondary) !important; font-family: 'Inter', sans-serif !important; font-weight: 500 !important; margin-bottom: 1rem !important;">
-        Choose input method:
+        Describe your project below to begin a chat-based planning session.
     </p>
     """,
         unsafe_allow_html=True,
     )
 
-    input_method = st.radio(
-        "Choose your input method:",
-        ["📁 Upload File", "🌐 Enter URL", "💬 Chat Input"],
-        horizontal=True,
-        label_visibility="hidden",
-        key=f"input_method_{task_counter}",
-    )
-
-    input_source = None
-    input_type = None
-
-    if input_method == "📁 Upload File":
-        input_source = file_input_component(task_counter)
-        input_type = "file" if input_source else None
-    elif input_method == "🌐 Enter URL":
-        input_source = url_input_component(task_counter)
-        input_type = "url" if input_source else None
-    else:  # Chat input
-        input_source = chat_input_component(task_counter)
-        input_type = "chat" if input_source else None
+    input_source = chat_input_component(task_counter)
+    input_type = "chat" if input_source else None
 
     return input_source, input_type
 
