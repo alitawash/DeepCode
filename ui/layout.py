@@ -75,7 +75,7 @@ def render_input_interface():
         st.warning("⚠️ Do not refresh the page or close the browser during processing.")
 
     elif not input_source:
-        st.info("👆 Please upload a file or enter a URL to start processing.")
+        st.info("👆 Please describe your project requirements to start processing.")
 
 
 def render_sidebar():

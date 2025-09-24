@@ -24,7 +24,11 @@
 
 # <img src="https://github.com/Zongwei9888/Experiment_Images/raw/43c585dca3d21b8e4b6390d835cdd34dc4b4b23d/DeepCode_images/title_logo.svg" alt="DeepCode Logo" width="32" height="32" style="vertical-align: middle; margin-right: 8px;"/> DeepCode: Open Agentic Coding
 
-### *Advancing Code Generation with Multi-Agent Systems*
+### *Forked from HKUDS/DeepCode to Unlock Larger Codebase Generation*
+
+> This repository is an adaptation of the original [HKUDS/DeepCode](https://github.com/HKUDS/DeepCode) project. Our goal is to
+> modify the upstream agentic workflow wherever necessary so it can be opened up and scaled for generating substantially larger
+> codebases. All existing features remain available while we focus on the enhancements required for expansive code synthesis.
 
 <!-- <p align="center">
   <img src="https://img.shields.io/badge/Version-1.0.0-00d4ff?style=for-the-badge&logo=rocket&logoColor=white" alt="Version">
