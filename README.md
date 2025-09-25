@@ -9,7 +9,22 @@ This repository is a lightweight fork of [HKUDS/DeepCode](https://github.com/HKU
 - **Tooling and infrastructure scripts** under [`tools/`](tools) and [`utils/`](utils) provide local document conversion, repository indexing, and command execution helpers required by the workflows.
 
 ## Quick start
-1. **Set up Python**: use Python 3.9+ and install dependencies with `pip install -r requirements.txt`.
+1. **Prepare the virtual environment**:
+   ```bash
+   # kill aliases that force /usr/bin/python3 and pip3 (3.9)
+   unalias python 2>/dev/null
+   unalias pip 2>/dev/null
+   hash -r
+
+   # create the Python 3.11 virtual environment if it doesn't exist yet
+   python3.11 -m venv ~/.venvs/deepcode311
+
+   # activate the DeepCode Python environment
+   source ~/.venvs/deepcode311/bin/activate
+
+   # install dependencies inside the environment
+   pip install -r requirements.txt
+   ```
 2. **Configure providers**: update `mcp_agent.config.yaml` with your API keys or local model endpoints.
 3. **Run the UI**: `python deepcode.py` launches the Streamlit dashboard at `http://localhost:8502`.
 4. **Run the CLI**: `python -m cli.main_cli --help` lists the flags for direct paper, URL, or chat based code generation pipelines.
