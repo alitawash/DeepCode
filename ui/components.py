@@ -4,23 +4,82 @@ Streamlit UI Components Module
 Contains all reusable UI components
 """
 
+from __future__ import annotations
+
+import json
+import textwrap
+from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 import streamlit as st
 import sys
-from typing import Dict, Any, Optional
-from datetime import datetime
-import json
+
+
+@lru_cache(maxsize=1)
+def _load_design_tokens() -> Dict[str, Any]:
+    """Read the shared design token file once for UI embellishments."""
+
+    tokens_path = Path(__file__).resolve().parent / "design_tokens.json"
+    try:
+        with tokens_path.open("r", encoding="utf-8") as token_file:
+            return json.load(token_file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def _render_token_palette() -> str:
+    """Render a small palette of the key design tokens for visual confirmation."""
+
+    colors = _load_design_tokens().get("color", {})
+    palette_order = ("primary", "secondary", "highlight", "success")
+    chips = []
+
+    for key in palette_order:
+        value = colors.get(key)
+        if not value:
+            continue
+        label = key.replace("_", " ").title()
+        chips.append(
+            textwrap.dedent(
+                f"""
+                <div class=\"dc-token-chip\" style=\"--dc-chip-color: {value};\">
+                    <span class=\"dc-chip-swatch\"></span>
+                    <span class=\"dc-chip-label\">{label}</span>
+                </div>
+                """
+            )
+        )
+
+    if not chips:
+        return ""
+
+    palette_html = "".join(chips)
+    return textwrap.dedent(
+        f"""
+        <div class=\"dc-token-palette\">
+            {palette_html}
+        </div>
+        """
+    )
 
 
 def display_header():
     """Display application header"""
+    token_palette = _render_token_palette()
     st.markdown(
-        """
-    <div class="main-header">
-        <h1>🧬 DeepCode</h1>
-        <h3>OPEN-SOURCE CODE AGENT</h3>
-        <p>⚡ DATA INTELLIGENCE LAB @ HKU • REVOLUTIONIZING RESEARCH REPRODUCIBILITY ⚡</p>
-    </div>
-    """,
+        textwrap.dedent(
+            f"""
+            <div class=\"main-header dc-app-shell\">
+                <div class=\"dc-header-badge\">Token-aware Streamlit UI</div>
+                <h1 class=\"dc-heading\">🧬 DeepCode</h1>
+                <h3 class=\"dc-subtitle\">Open-Source Code Agent</h3>
+                <p class=\"dc-subtitle\">⚡ Data Intelligence Lab @ HKU • Orchestrator-led research pipelines ⚡</p>
+                {token_palette}
+            </div>
+            """
+        ),
         unsafe_allow_html=True,
     )
 
