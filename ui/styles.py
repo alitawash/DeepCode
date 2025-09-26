@@ -4,6 +4,180 @@ Streamlit UI Styles Module
 Contains all CSS style definitions for the application
 """
 
+from __future__ import annotations
+
+import json
+import textwrap
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Dict
+
+
+_TOKENS_PATH = Path(__file__).resolve().parent / "design_tokens.json"
+
+
+@lru_cache(maxsize=1)
+def load_design_tokens() -> Dict[str, Any]:
+    """Load the shared design token JSON file.
+
+    Returns:
+        Dict[str, Any]: Parsed token structure or an empty dict on failure.
+    """
+
+    try:
+        with _TOKENS_PATH.open("r", encoding="utf-8") as token_file:
+            return json.load(token_file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def _render_token_css() -> str:
+    """Generate CSS overrides from design tokens for the Streamlit UI."""
+
+    tokens = load_design_tokens()
+    if not tokens:
+        return ""
+
+    colors = tokens.get("color", {})
+    spacing = tokens.get("spacing", {})
+    radius = tokens.get("radius", {})
+    typography = tokens.get("typography", {})
+
+    lines = [
+        ":root {",
+        f"    --dc-background: {colors.get('background', '#0a0e27')};",
+        f"    --dc-surface: {colors.get('surface', '#161b22')};",
+        f"    --dc-primary: {colors.get('primary', '#1f6feb')};",
+        f"    --dc-primary-text: {colors.get('primary_text', '#ffffff')};",
+        f"    --dc-secondary: {colors.get('secondary', '#6e7781')};",
+        f"    --dc-secondary-text: {colors.get('secondary_text', '#0a0c10')};",
+        f"    --dc-highlight: {colors.get('highlight', '#ffd33d')};",
+        f"    --dc-border: {colors.get('border', '#d0d7de')};",
+        f"    --dc-success: {colors.get('success', '#2da44e')};",
+        f"    --dc-danger: {colors.get('danger', '#d1242f')};",
+        f"    --dc-spacing-sm: {spacing.get('sm', '8px')};",
+        f"    --dc-spacing-md: {spacing.get('md', '16px')};",
+        f"    --dc-spacing-lg: {spacing.get('lg', '24px')};",
+        f"    --dc-radius-sm: {radius.get('sm', '6px')};",
+        f"    --dc-radius-md: {radius.get('md', '12px')};",
+        f"    --dc-font-family: {typography.get('font_family', "'Inter', sans-serif")};",
+        "}",
+        ".dc-app-shell {",
+        "    background: linear-gradient(160deg, var(--dc-background) 0%, var(--dc-surface) 100%);",
+        "    border-radius: var(--dc-radius-lg, 18px);",
+        "    padding: var(--dc-spacing-lg, 24px);",
+        "    border: 1px solid rgba(0, 0, 0, 0.18);",
+        "    box-shadow: 0 20px 45px rgba(31, 111, 235, 0.18);",
+        "    position: relative;",
+        "    overflow: hidden;",
+    ]
+
+    lines.extend(
+        [
+            "    margin-bottom: var(--dc-spacing-lg, 24px);",
+            "}",
+            ".dc-app-shell::after {",
+            "    content: '';",
+            "    position: absolute;",
+            "    inset: 0;",
+            "    background: radial-gradient(circle at top right, rgba(255, 211, 61, 0.35), transparent 55%);",
+            "    pointer-events: none;",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-header-badge {",
+            "    display: inline-flex;",
+            "    align-items: center;",
+            "    gap: 0.4rem;",
+            "    padding: 0.35rem 0.85rem;",
+            "    border-radius: 999px;",
+            "    background: rgba(255, 255, 255, 0.12);",
+            "    border: 1px solid rgba(255, 255, 255, 0.25);",
+            "    color: var(--dc-primary-text);",
+            "    font-weight: 600;",
+            "    letter-spacing: 0.04em;",
+            "    text-transform: uppercase;",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-heading {",
+            "    font-family: var(--dc-font-family);",
+            "    font-size: 2.75rem;",
+            "    font-weight: 700;",
+            "    margin: 1.2rem 0 0.35rem;",
+            "    color: var(--dc-primary-text);",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-subtitle {",
+            "    color: rgba(255, 255, 255, 0.85);",
+            "    font-size: 1.05rem;",
+            "    margin-bottom: var(--dc-spacing-md, 16px);",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-token-palette {",
+            "    display: flex;",
+            "    flex-wrap: wrap;",
+            "    gap: var(--dc-spacing-sm, 8px);",
+            "    margin-top: var(--dc-spacing-md, 16px);",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-token-chip {",
+            "    display: inline-flex;",
+            "    align-items: center;",
+            "    gap: 0.5rem;",
+            "    padding: 0.35rem 0.75rem;",
+            "    border-radius: var(--dc-radius-sm, 6px);",
+            "    background: var(--dc-surface);",
+            "    border: 1px solid var(--dc-border);",
+            "    box-shadow: 0 5px 12px rgba(15, 23, 42, 0.14);",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-token-chip .dc-chip-swatch {",
+            "    width: 14px;",
+            "    height: 14px;",
+            "    border-radius: 999px;",
+            "    background: var(--dc-chip-color, var(--dc-primary));",
+            "    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);",
+        ]
+    )
+
+    lines.extend(
+        [
+            "}",
+            ".dc-token-chip .dc-chip-label {",
+            "    font-size: 0.8rem;",
+            "    font-weight: 600;",
+            "    color: var(--dc-secondary-text);",
+            "    text-transform: uppercase;",
+            "    letter-spacing: 0.05em;",
+        ]
+    )
+
+    css_block = "\n".join(lines)
+    return "\n" + textwrap.indent(css_block, "        ")
+
 
 def get_main_styles() -> str:
     """
@@ -12,7 +186,7 @@ def get_main_styles() -> str:
     Returns:
         CSS styles string
     """
-    return """
+    css = """
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;600;700&display=swap');
 
@@ -2588,3 +2762,9 @@ def get_main_styles() -> str:
 
     </style>
     """
+
+    token_css = _render_token_css()
+    if token_css:
+        css = css.replace("    </style>", f"{token_css}\n    </style>")
+
+    return css
