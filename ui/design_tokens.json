@@ -1,0 +1,37 @@
+{
+  "color": {
+    "background": "#f4f6fb",
+    "surface": "#ffffff",
+    "primary": "#1f6feb",
+    "primary_text": "#ffffff",
+    "secondary": "#6e7781",
+    "secondary_text": "#0a0c10",
+    "border": "#d0d7de",
+    "highlight": "#ffd33d",
+    "danger": "#d1242f",
+    "success": "#2da44e"
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px"
+  },
+  "radius": {
+    "sm": "6px",
+    "md": "12px",
+    "lg": "18px"
+  },
+  "shadow": {
+    "soft": "0 10px 25px rgba(15, 23, 42, 0.1)"
+  },
+  "typography": {
+    "font_family": "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "font_size_sm": "0.875rem",
+    "font_size_md": "1rem",
+    "font_size_lg": "1.125rem",
+    "font_weight_regular": "400",
+    "font_weight_semibold": "600"
+  }
+}
