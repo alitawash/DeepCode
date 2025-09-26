@@ -157,7 +157,7 @@ def _generate_step3(project_name: str) -> None:
     _write_if_different(frontend_main_path, frontend_main_content)
 
     tokens_ts_path = root / "src/frontend/src/design-system/tokens.ts"
-    tokens_ts_content = """import { useEffect, useState } from 'react';\nimport designTokens from '../../../../ui/design_tokens.json';\n\nexport type DesignTokens = typeof designTokens;\n\nexport const tokens: DesignTokens = designTokens;\n\nexport function useDesignTokens(): DesignTokens {\n  const [state, setState] = useState<DesignTokens>(tokens);\n\n  useEffect(() => {\n    setState(tokens);\n  }, []);\n\n  return state;\n}\n\nexport function cssVariables(): Record<string, string> {\n  const vars: Record<string, string> = {};\n\n  for (const [groupName, groupValues] of Object.entries(tokens)) {\n    for (const [tokenName, tokenValue] of Object.entries(groupValues)) {\n      vars[`--dc-${groupName}-${tokenName}`] = tokenValue;\n    }\n  }\n\n  return vars;\n}\n"""
+    tokens_ts_content = """import { useEffect, useState } from 'react';\nimport designTokens from '../../../../ui/design_tokens.json';\n\nexport type DesignTokens = typeof designTokens;\n\nexport const tokens: DesignTokens = designTokens;\n\nexport function useDesignTokens(): DesignTokens {\n  const [state, setState] = useState<DesignTokens>(tokens);\n\n  useEffect(() => {\n    setState(tokens);\n  }, []);\n\n  return state;\n}\n\nexport function cssVariables(): Record<string, string> {\n  const vars: Record<string, string> = {};\n\n  for (const [groupName, groupValues] of Object.entries(tokens)) {\n    for (const [tokenName, tokenValue] of Object.entries(groupValues)) {\n      vars[`--dc-${groupName}-${tokenName}`] = tokenValue as string;\n    }\n  }\n\n  return vars;\n}\n"""
     _write_if_different(tokens_ts_path, tokens_ts_content)
 
     base_button_path = root / "src/frontend/src/design-system/BaseButton.tsx"
@@ -517,7 +517,7 @@ class ChatOrchestrator:
             "NEXT STEP",
             f"Awaiting response to: {prompt}",
             "PROMPT",
-            "Yes",
+            f"{prompt} (Yes/No)",
         ]
         return "\n".join(sections)
 
