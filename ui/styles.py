@@ -43,6 +43,8 @@ def _render_token_css() -> str:
     radius = tokens.get("radius", {})
     typography = tokens.get("typography", {})
 
+    font_family = typography.get("font_family", "'Inter', sans-serif")
+
     lines = [
         ":root {",
         f"    --dc-background: {colors.get('background', '#0a0e27')};",
@@ -60,7 +62,7 @@ def _render_token_css() -> str:
         f"    --dc-spacing-lg: {spacing.get('lg', '24px')};",
         f"    --dc-radius-sm: {radius.get('sm', '6px')};",
         f"    --dc-radius-md: {radius.get('md', '12px')};",
-        f"    --dc-font-family: {typography.get('font_family', "'Inter', sans-serif")};",
+        f"    --dc-font-family: {font_family};",
         "}",
         ".dc-app-shell {",
         "    background: linear-gradient(160deg, var(--dc-background) 0%, var(--dc-surface) 100%);",
