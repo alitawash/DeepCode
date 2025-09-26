@@ -22,12 +22,19 @@ export interface BaseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   intent?: Intent;
 }
 
-export const BaseButton: React.FC<BaseButtonProps> = ({ intent = 'primary', style, children, ...rest }) => {
+export const BaseButton: React.FC<BaseButtonProps> = ({
+  intent = 'primary',
+  style,
+  children,
+  type: buttonType = 'button',
+  ...rest
+}) => {
   const palette = intentToColor[intent];
 
   return (
     <button
       {...rest}
+      type={buttonType}
       style={{
         background: palette.background,
         color: palette.color,
