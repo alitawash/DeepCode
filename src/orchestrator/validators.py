@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
 
 from .required_outputs import required_for
@@ -53,7 +54,10 @@ class AgentValidationState:
 
     @property
     def is_clean(self) -> bool:
-        return all(result.exists and result.hash_matches for result in self.required_files)
+        return all(
+            result.exists and result.hash_matches and result.sections_valid
+            for result in self.required_files
+        )
 
 
 def _validate_sections(path: Path, expected_sections: Iterable[str]) -> bool:
