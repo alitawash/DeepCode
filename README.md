@@ -34,5 +34,13 @@ This repository is a lightweight fork of [HKUDS/DeepCode](https://github.com/HKU
 - Prompts and configuration helpers are exposed in [`prompts/`](prompts) and [`config/`](config) for simple customization.
 - Workflow-friendly licenses and contribution defaults remain MIT via [`LICENSE`](LICENSE).
 
+## Orchestrator mode
+This fork introduces a chat-only orchestrator that manages step-gated project execution.
+
+- Launch via `python -m src.app.main` and provide a project name through chat input.
+- Outputs are stored under `projects/<project_name>/` with `.deepcode` metadata for sessions and file indexing.
+- UI tokens live in `ui/design_tokens.json` and are consumed by the frontend scaffold (`src/frontend/src/design-system`).
+- Each step exposes Clean/Dirty status chips and cost telemetry following the eight-section output contract.
+
 ## License
 This project continues under the MIT License.
