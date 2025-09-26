@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import math
+import textwrap
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -175,7 +176,27 @@ def _generate_step3(project_name: str) -> None:
     _write_if_different(env_example_path, env_example_content)
 
     workflow_path = root / ".github/workflows/ci.yml"
-    workflow_content = """name: CI\n\non: [push, pull_request]\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - name: Set up Python\n        uses: actions/setup-python@v4\n        with:\n          python-version: '3.11'\n      - name: Install dependencies\n        run: pip install -r requirements.txt\n      - name: Static checks\n        run: python -m compileall src\n"""
+    workflow_content = textwrap.dedent(
+        """\
+        name: CI
+
+        on: [push, pull_request]
+
+        jobs:
+          lint:
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v3
+              - name: Set up Python
+                uses: actions/setup-python@v4
+                with:
+                  python-version: '3.11'
+              - name: Install dependencies
+                run: pip install -r requirements.txt
+              - name: Static checks
+                run: python -m compileall src
+        """
+    ).strip() + "\n"
     _write_if_different(workflow_path, workflow_content)
 
     index = load_index(project_name)
@@ -414,27 +435,44 @@ class ChatOrchestrator:
             f"{state.agent.upper()}: {'CLEAN' if state.is_clean else 'DIRTY'}"
             for state in agent_states
         ]
-        artifacts = []
+
+        artifacts: List[Tuple[str, str]] = []
+        diffs: List[str] = []
         for state in agent_states:
+            issues = state.issues()
+            if issues:
+                diffs.append(f"{state.agent}: {', '.join(issues)}")
             for result in state.required_files:
-                artifacts.append((result.path, "OK" if result.exists else "Missing"))
-        diffs = [
-            f"Validated {len(agent_states)} agent(s) for {definition.title}."
-        ]
-        checks = []
-        for state in agent_states:
-            for result in state.required_files:
-                status = "PASS" if result.exists and result.sections_valid else "FAIL"
-                checks.append(
-                    f"{result.path} — {'sections ok' if result.sections_valid else 'missing sections'} — {status}"
+                artifacts.append(
+                    (
+                        result.path,
+                        "exists" if result.exists else "missing",
+                    )
                 )
+
+        if not diffs:
+            diffs.append(f"Validated {len(agent_states)} agent(s) for {definition.title}.")
+
+        checks: List[str] = []
+        for state in agent_states:
+            for result in state.required_files:
+                parts = ["exists" if result.exists else "missing"]
+                parts.append("hash ok" if result.hash_matches else "hash mismatch")
+                parts.append("sections ok" if result.sections_valid else "sections missing")
+                check_status = (
+                    "PASS"
+                    if result.exists and result.hash_matches and result.sections_valid
+                    else "FAIL"
+                )
+                checks.append(f"{result.path} — {', '.join(parts)} — {check_status}")
 
         prompt = definition.gate_prompt
         if "{name}" in prompt:
             prompt = prompt.format(name=self.state.display_name)
         self.state.awaiting_step_confirmation = True
+        all_clean = all(state.is_clean for state in agent_states)
         status = [
-            "✅ Existing outputs validated." if all(s.is_clean for s in agent_states) else "⚠️ Regenerated missing assets.",
+            "✅ Existing outputs validated." if all_clean else "⚠️ Rebuilt or flagged dirty artifacts.",
             f"Step: {definition.title}",
         ]
         return self._render_response(

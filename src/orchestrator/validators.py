@@ -54,7 +54,22 @@ class AgentValidationState:
 
     @property
     def is_clean(self) -> bool:
-        return all(result.exists and result.hash_matches for result in self.required_files)
+        return all(
+            result.exists and result.hash_matches and result.sections_valid
+            for result in self.required_files
+        )
+
+
+    def issues(self) -> List[str]:
+        problems: List[str] = []
+        for result in self.required_files:
+            if not result.exists:
+                problems.append(f"{result.path}: missing")
+            elif not result.hash_matches:
+                problems.append(f"{result.path}: hash mismatch")
+            elif not result.sections_valid:
+                problems.append(f"{result.path}: sections missing")
+        return problems
 
 
 def _validate_sections(path: Path, expected_sections: Iterable[str]) -> bool:

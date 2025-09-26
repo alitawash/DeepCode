@@ -82,11 +82,21 @@ def save_session(name: str, payload: Mapping[str, Any]) -> None:
 
 
 def load_index(name: str) -> Dict[str, Any]:
-    """Load the file index for a project."""
+    """Load the file index for a project.
+
+    Ensures the returned payload always exposes the ``files`` and ``folders``
+    keys so downstream validation can rely on their presence without repeated
+    ``setdefault`` calls that risk mutating shared state.
+    """
 
     ensure_project_root(name)
     path = project_root(name) / INDEX_RELATIVE_PATH
-    return _load_json(path, {"files": {}})
+    payload = _load_json(path, {"files": {}, "folders": []})
+    if "files" not in payload:
+        payload["files"] = {}
+    if "folders" not in payload:
+        payload["folders"] = []
+    return payload
 
 
 def save_index(name: str, index: Mapping[str, Any]) -> None:
@@ -94,8 +104,18 @@ def save_index(name: str, index: Mapping[str, Any]) -> None:
 
     root = ensure_project_root(name)
     path = root / INDEX_RELATIVE_PATH
+    serialisable = dict(index)
+    folders = serialisable.get("folders", [])
+    if isinstance(folders, list):
+        # Maintain a stable, sorted folder list to reduce merge conflicts when
+        # multiple sessions touch the same project tree.
+        deduped = []
+        for entry in folders:
+            if entry not in deduped:
+                deduped.append(entry)
+        serialisable["folders"] = sorted(deduped)
     with path.open("w", encoding="utf-8") as handle:
-        json.dump(index, handle, indent=2, sort_keys=True)
+        json.dump(serialisable, handle, indent=2, sort_keys=True)
 
 
 def compute_sha1(path: Path) -> str:
